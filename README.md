@@ -23,15 +23,24 @@ A comprehensive Python framework for creating gamebook-style text adventures usi
 
 ```
 TextAdventurePython/
-├── dice.py              # Dice rolling utilities (d4, d6, d8, d10, d12, d20, d100)
-├── character.py         # Character class with D20 attributes and mechanics
-├── spell.py             # Spell system with various spells (Magic Missile, Fireball, etc.)
-├── monster.py           # Monster classes (Goblin, Orc, Dragon, etc.)
-├── combat.py            # Combat system and item classes
-├── node.py              # GameNode and Adventure classes for gamebook structure
-├── game.py              # Main game engine and UI
-├── sample_adventure.py  # Example adventures (The Dark Tower, The Goblin Cave)
-└── main.py              # Entry point to run the game
+├── dice.py                # Dice rolling utilities (d4, d6, d8, d10, d12, d20, d100)
+├── character.py           # Character class with D20 attributes and mechanics
+├── spell.py               # Spell system with various spells (Magic Missile, Fireball, etc.)
+├── monster.py             # Monster classes (Goblin, Orc, Dragon, etc.)
+├── combat.py              # Combat system and item classes
+├── node.py                # GameNode and Adventure classes for gamebook structure
+├── game.py                # Main game engine and UI
+├── sample_adventure.py    # Example adventures (The Dark Tower, The Goblin Cave)
+├── adventure_loader.py    # JSON adventure loading and exporting system
+├── export_adventures.py   # Utility to export Python adventures to JSON
+├── main.py                # Entry point to run the game
+├── adventures/            # Directory for JSON adventure files
+│   ├── dark_tower.json    # The Dark Tower adventure in JSON format
+│   ├── goblin_cave.json   # The Goblin Cave adventure in JSON format
+│   └── template.json      # Template for creating new adventures
+├── ADVENTURE_JSON_FORMAT.md  # Documentation for JSON adventure format
+├── QUICKSTART.md          # Quick start guide
+└── README.md              # This file
 ```
 
 ## Quick Start
@@ -56,7 +65,74 @@ python main.py
 
 ## Creating Your Own Adventure
 
-### Basic Adventure Creation
+### Option 1: Interactive Builder (Easiest!) 🎯
+
+Use the **Adventure Builder** - a guided text interface that creates JSON files for you. No JSON or coding knowledge needed!
+
+```bash
+python adventure_builder.py
+```
+
+The builder provides:
+- ✓ Step-by-step guidance
+- ✓ Interactive menus
+- ✓ Automatic validation
+- ✓ Visual structure viewer
+- ✓ Easy node creation and editing
+
+See [ADVENTURE_BUILDER_GUIDE.md](ADVENTURE_BUILDER_GUIDE.md) for detailed instructions.
+
+### Option 2: JSON File Format (Manual)
+
+Create adventures by editing JSON files directly.
+
+#### Quick Start with JSON
+
+1. **Copy the template**:
+   ```bash
+   cp adventures/template.json adventures/my_adventure.json
+   ```
+
+2. **Edit the JSON file** with any text editor:
+   ```json
+   {
+     "title": "My Adventure",
+     "description": "Your adventure description",
+     "starting_node_id": "start",
+     "nodes": [
+       {
+         "node_id": "start",
+         "title": "Starting Point",
+         "description": "The adventure begins...",
+         "choices": [
+           {"text": "Go forward", "target": "next_node"}
+         ]
+       }
+     ]
+   }
+   ```
+
+3. **Run the game** and select option 3 to load your custom adventure
+
+#### JSON Format Details
+
+See [ADVENTURE_JSON_FORMAT.md](ADVENTURE_JSON_FORMAT.md) for complete documentation including:
+- Full JSON schema
+- Field descriptions
+- Requirements system (ability scores, items, levels)
+- Monsters, treasure, and traps
+- Example adventures
+
+#### Benefits of JSON Format
+- ✓ No Python knowledge needed
+- ✓ Easy to edit and share
+- ✓ Version control friendly
+- ✓ Visual editor compatible
+- ✓ Rapid prototyping
+
+### Option 3: Python Code (Advanced)
+
+For adventures requiring custom logic or events, use Python:
 
 ```python
 from node import Adventure, GameNode
@@ -90,17 +166,58 @@ node.add_trap("spike trap", dc=15, damage="2d6", save_type='reflex')
 node.add_choice("Go north", "north_room")
 node.add_choice("Go east", "east_room", requirements={'strength': 14})
 
+# Add custom events
+def special_event(character, node):
+    character.gain_xp(100)
+    return "You feel more experienced!"
+
+node.add_on_enter_event(special_event)
+
 # Mark endings
 node.set_victory()  # or node.set_defeat()
 
 # Add to adventure
 adventure.add_node(node)
 
-# Create character and start game
-character = Character("Hero", "Fighter", level=1)
-character.roll_abilities()
+# Export to JSON (optional)
+from adventure_loader import AdventureExporter
+AdventureExporter.export_to_file(adventure, 'adventures/my_adventure.json')
+```
 
-game = GameEngine(adventure, character)
+### Converting Python Adventures to JSON
+
+Use the export utility to convert existing Python adventures:
+
+```bash
+python export_adventures.py
+```
+
+This will create JSON files for all built-in adventures in the `adventures/` directory.
+
+### Validating JSON Adventures
+
+Before playing a custom adventure, validate it to check for errors:
+
+```bash
+python validate_adventure.py adventures/my_adventure.json
+```
+
+The validator checks for:
+- ✓ Valid JSON syntax
+- ✓ Required fields present
+- ✓ All target nodes exist
+- ✓ Node reachability
+- ✓ Valid monster types
+- ✓ Proper trap structure
+- ✓ Victory/defeat endings
+
+### Available Example Adventures
+
+The `adventures/` directory includes:
+- **dark_tower.json** - Complex adventure with 14 nodes, multiple paths, secrets
+- **goblin_cave.json** - Simple 5-node adventure, good for learning
+- **haunted_manor.json** - Medium 8-node ghost story
+- **template.json** - Blank template for creating new adventures
 ```
 
 ### Monster Types

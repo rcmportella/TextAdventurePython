@@ -2,9 +2,11 @@
 Main entry point for the text adventure game
 Run this file to start playing!
 """
+import os
 from character import Character
 from game import GameEngine, GameUI
 from sample_adventure import create_sample_adventure, create_simple_adventure
+from adventure_loader import AdventureLoader
 from spell import get_spell
 
 
@@ -248,13 +250,58 @@ def main():
     print("="*60)
     print("\n1. The Dark Tower (Full adventure with multiple paths)")
     print("2. The Goblin Cave (Shorter, simpler adventure)")
+    print("3. Load from JSON file")
     
-    adv_choice = input("\nEnter your choice (1-2): ")
+    adv_choice = input("\nEnter your choice (1-3): ")
     
     if adv_choice == '2':
-        adventure = create_simple_adventure()
+        # Load from JSON
+        json_path = os.path.join('adventures', 'goblin_cave.json')
+        if os.path.exists(json_path):
+            adventure = AdventureLoader.load_from_file(json_path)
+        else:
+            # Fallback to code-based version
+            adventure = create_simple_adventure()
+    elif adv_choice == '3':
+        # Custom JSON file
+        print("\nAvailable adventures:")
+        adventures_dir = 'adventures'
+        if os.path.exists(adventures_dir):
+            json_files = [f for f in os.listdir(adventures_dir) if f.endswith('.json')]
+            if json_files:
+                for i, filename in enumerate(json_files, 1):
+                    print(f"  {i}. {filename}")
+                file_choice = input("\nEnter file number or path: ")
+                try:
+                    file_idx = int(file_choice) - 1
+                    if 0 <= file_idx < len(json_files):
+                        json_path = os.path.join(adventures_dir, json_files[file_idx])
+                    else:
+                        json_path = file_choice
+                except ValueError:
+                    json_path = file_choice
+                
+                try:
+                    adventure = AdventureLoader.load_from_file(json_path)
+                    print(f"\nLoaded: {adventure.title}")
+                except Exception as e:
+                    print(f"\nError loading adventure: {e}")
+                    print("Using default adventure instead.")
+                    adventure = create_sample_adventure()
+            else:
+                print("No JSON adventures found. Using default.")
+                adventure = create_sample_adventure()
+        else:
+            print("Adventures directory not found. Using default.")
+            adventure = create_sample_adventure()
     else:
-        adventure = create_sample_adventure()
+        # Load from JSON
+        json_path = os.path.join('adventures', 'dark_tower.json')
+        if os.path.exists(json_path):
+            adventure = AdventureLoader.load_from_file(json_path)
+        else:
+            # Fallback to code-based version
+            adventure = create_sample_adventure()
     
     # Create character
     character = create_character()
