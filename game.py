@@ -151,7 +151,7 @@ class GameEngine:
         Returns:
             Combat instance
         """
-        return self.current_node.create_combat(self.character)
+        return self.current_node.create_combat(self.character, self.adventure)
         
     def handle_combat_result(self, combat_result):
         """
@@ -304,7 +304,7 @@ class GameUI:
         print("\n" + "="*60)
         print("CHARACTER STATUS")
         print("="*60)
-        print(str(character))
+        print(character.get_character_sheet())
         print("="*60 + "\n")
         
     @staticmethod

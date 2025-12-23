@@ -231,6 +231,16 @@ class AdventureBuilder:
         if add_traps == 'y':
             self.add_traps_to_node(node)
         
+        # Gold cost
+        add_gold_cost = input("\nAdd gold cost to enter this node? (y/n): ").strip().lower()
+        if add_gold_cost == 'y':
+            self.add_gold_cost_to_node(node)
+        
+        # Item cost
+        add_item_cost = input("\nAdd item cost to enter this node? (y/n): ").strip().lower()
+        if add_item_cost == 'y':
+            self.add_item_cost_to_node(node)
+        
         # Ending type
         print("\nIs this an ending node?")
         print("1. No (has choices)")
@@ -258,8 +268,10 @@ class AdventureBuilder:
         monsters = ['goblin', 'orc', 'skeleton', 'giant_spider', 'zombie', 'ogre', 'troll', 'dragon']
         for i, monster in enumerate(monsters, 1):
             print(f"  {i}. {monster}")
+        print(f"  {len(monsters) + 1}. Custom monster (create your own)")
         
         print("\nEnter monster numbers separated by spaces (e.g., '1 1 2' for 2 goblins and 1 orc):")
+        print(f"Or enter '{len(monsters) + 1}' to create a custom monster:")
         monster_input = input("> ").strip()
         
         if monster_input:
@@ -268,9 +280,76 @@ class AdventureBuilder:
                 for idx in indices:
                     if 0 <= idx < len(monsters):
                         node.add_monster_encounter(monsters[idx])
-                print(f"✓ Added {len(indices)} monster(s)")
+                    elif idx == len(monsters):
+                        # Custom monster option
+                        custom_name = self.create_custom_monster()
+                        if custom_name:
+                            node.add_monster_encounter(custom_name)
+                print(f"✓ Added {len([i for i in indices if 0 <= i <= len(monsters)])} monster(s)")
             except ValueError:
                 print("❌ Invalid input. Skipping monsters.")
+    
+    def create_custom_monster(self):
+        """Create a custom monster with full stats"""
+        print("\n" + "-"*70)
+        print("CREATE CUSTOM MONSTER")
+        print("-"*70)
+        
+        name = input("Monster name: ").strip()
+        if not name:
+            print("❌ Monster name cannot be empty.")
+            return None
+        
+        # Check if already exists
+        if name in self.adventure.custom_monsters:
+            print(f"✓ Custom monster '{name}' already defined, reusing.")
+            return name
+        
+        print("\nEnter monster stats (press Enter for defaults):")
+        
+        hit_dice = input("Hit dice [2d8]: ").strip() or "2d8"
+        
+        try:
+            armor_class = int(input("Armor Class [12]: ").strip() or "12")
+        except ValueError:
+            armor_class = 12
+        
+        try:
+            attack_bonus = int(input("Attack bonus [+2]: ").strip() or "2")
+        except ValueError:
+            attack_bonus = 2
+        
+        damage = input("Damage dice [1d6]: ").strip() or "1d6"
+        
+        print("\nSpecial abilities (one per line, empty to finish):")
+        special_abilities = []
+        while True:
+            ability = input("> ").strip()
+            if not ability:
+                break
+            special_abilities.append(ability)
+        
+        print("\nTreasure carried (one per line, empty to finish):")
+        treasure = []
+        while True:
+            item = input("> ").strip()
+            if not item:
+                break
+            treasure.append(item)
+        
+        # Store custom monster definition
+        monster_stats = {
+            "hit_dice": hit_dice,
+            "armor_class": armor_class,
+            "attack_bonus": attack_bonus,
+            "damage": damage,
+            "special_abilities": special_abilities,
+            "treasure": treasure
+        }
+        
+        self.adventure.add_custom_monster(name, monster_stats)
+        print(f"\n✓ Custom monster '{name}' created successfully!")
+        return name
     
     def add_treasure_to_node(self, node):
         """Add treasure to a node"""
@@ -313,6 +392,49 @@ class AdventureBuilder:
                     break
             except ValueError:
                 print("❌ Invalid input. Skipping trap.")
+                break
+    
+    def add_gold_cost_to_node(self, node):
+        """Add gold cost to a node"""
+        print("\n--- Set Gold Cost ---")
+        print("This is the amount of gold that will be deducted when the player enters this node.")
+        print("Useful for: tolls, shop purchases, bribes, entry fees, etc.")
+        
+        try:
+            gold_cost = int(input("Gold cost [0]: ").strip() or "0")
+            if gold_cost > 0:
+                node.set_gold_cost(gold_cost)
+                print(f"✓ Gold cost set to {gold_cost} gp")
+            else:
+                print("⚠️  Gold cost must be greater than 0")
+        except ValueError:
+            print("❌ Invalid input. Must be a number.")
+    
+    def add_item_cost_to_node(self, node):
+        """Add item cost to a node"""
+        print("\n--- Set Item Cost ---")
+        print("This requires the player to have certain items to enter this node.")
+        print("The items will be removed when entering (consumed).")
+        print("Useful for: keys, offerings, ingredients, quest items, etc.")
+        print("You can add multiple different item types.\n")
+        
+        while True:
+            item_name = input("Item name (empty to finish): ").strip()
+            if not item_name:
+                break
+            
+            try:
+                quantity = int(input(f"Quantity of {item_name} required: ").strip() or "1")
+                if quantity > 0:
+                    node.set_item_cost(item_name, quantity)
+                    print(f"✓ Item cost added: {quantity}x {item_name}")
+                else:
+                    print("⚠️  Quantity must be greater than 0")
+            except ValueError:
+                print("❌ Invalid quantity. Must be a number.")
+            
+            another = input("\nAdd another item cost? (y/n): ").strip().lower()
+            if another != 'y':
                 break
     
     def add_choices_to_node(self, node):
@@ -431,6 +553,8 @@ class AdventureBuilder:
             print(f"Treasure: {len(node.treasure)}")
             print(f"Traps: {len(node.traps)}")
             print(f"Choices: {len(node.choices)}")
+            print(f"Gold cost: {node.gold_cost}")
+            print(f"Item costs: {len(node.item_cost)} types")
             print(f"Victory: {node.is_victory}, Defeat: {node.is_defeat}")
             
             print("\nWhat to edit?")
@@ -440,8 +564,10 @@ class AdventureBuilder:
             print("4. Treasure")
             print("5. Traps")
             print("6. Choices")
-            print("7. Ending flags")
-            print("8. Back")
+            print("7. Gold cost")
+            print("8. Item costs")
+            print("9. Ending flags")
+            print("10. Back")
             
             edit_choice = input("\nChoice: ").strip()
             
@@ -523,6 +649,48 @@ class AdventureBuilder:
                     print("✓ Choices cleared")
             
             elif edit_choice == '7':
+                print(f"\nCurrent gold cost: {node.gold_cost}")
+                print("1. Set gold cost")
+                print("2. Remove gold cost")
+                gc_choice = input("Choice: ").strip()
+                if gc_choice == '1':
+                    self.add_gold_cost_to_node(node)
+                elif gc_choice == '2':
+                    node.gold_cost = 0
+                    # Remove gold cost event if it exists
+                    node.on_enter_events = []
+                    print("✓ Gold cost removed")
+            
+            elif edit_choice == '8':
+                print(f"\nCurrent item costs:")
+                if node.item_cost:
+                    for item_name, qty in node.item_cost.items():
+                        print(f"  - {qty}x {item_name}")
+                else:
+                    print("  None")
+                print("\n1. Add item cost")
+                print("2. Remove item cost")
+                print("3. Clear all item costs")
+                ic_choice = input("Choice: ").strip()
+                if ic_choice == '1':
+                    self.add_item_cost_to_node(node)
+                elif ic_choice == '2':
+                    if node.item_cost:
+                        item_name = input("Item name to remove: ").strip()
+                        if item_name in node.item_cost:
+                            del node.item_cost[item_name]
+                            print(f"✓ Removed {item_name} cost")
+                        else:
+                            print("❌ Item cost not found")
+                    else:
+                        print("❌ No item costs to remove")
+                elif ic_choice == '3':
+                    node.item_cost = {}
+                    # Remove item cost events
+                    node.on_enter_events = [e for e in node.on_enter_events if 'item' not in str(e)]
+                    print("✓ All item costs cleared")
+            
+            elif edit_choice == '9':
                 print(f"\nCurrent: Victory={node.is_victory}, Defeat={node.is_defeat}")
                 print("1. Set as victory")
                 print("2. Set as defeat")
@@ -542,7 +710,7 @@ class AdventureBuilder:
                     node.is_defeat = False
                     print("✓ Flags cleared")
             
-            elif edit_choice == '8':
+            elif edit_choice == '10':
                 break
     
     def delete_node(self):

@@ -47,6 +47,11 @@ Each node in the `nodes` array has the following structure:
       }
     }
   ],
+  "gold_cost": 30,       // Optional, gold deducted when entering node
+  "item_cost": {         // Optional, items required and consumed when entering
+    "Sacred Candle": 3,
+    "Golden Key": 1
+  },
   "is_victory": true,  // Optional, marks victory ending
   "is_defeat": true    // Optional, marks defeat ending
 }
@@ -135,6 +140,85 @@ Example:
   }
 ]
 ```
+
+#### Gold Cost
+- **gold_cost**: Integer value representing gold that will be deducted when entering the node
+
+This is useful for creating:
+- Toll bridges or gates
+- Shop purchases
+- Bribes or fees
+- Entry costs to locations
+
+When a player enters a node with a gold_cost:
+- The gold is automatically deducted from the player's gold attribute
+- A message displays showing the transaction
+- If the player doesn't have enough gold, a warning is shown but they can still proceed
+
+Example:
+```json
+{
+  "node_id": "toll_bridge",
+  "title": "The Toll Bridge",
+  "description": "A troll demands 30 gold to cross the bridge.",
+  "gold_cost": 30,
+  "choices": [
+    {
+      "text": "Cross the bridge",
+      "target": "other_side"
+    }
+  ]
+}
+```
+
+See [GOLD_SYSTEM.md](GOLD_SYSTEM.md) for more details on the gold system.
+
+#### Item Cost
+- **item_cost**: Dictionary mapping item names to required quantities
+
+This creates a requirement where the player must have (and will consume) specific items to enter the node. Perfect for:
+- Keys or passwords
+- Quest items or offerings
+- Crafting ingredients
+- Consumable prerequisites
+
+When a player enters a node with item_cost:
+- The system checks if the player has enough of each required item
+- If yes, the items are automatically removed from inventory
+- A message displays showing what was consumed
+- If the player doesn't have enough items, a warning is shown but they can still proceed
+
+Example:
+```json
+{
+  "node_id": "locked_vault",
+  "title": "The Locked Vault",
+  "description": "The vault requires 2 silver keys to open.",
+  "item_cost": {
+    "Silver Key": 2
+  },
+  "treasure": ["1000 gold pieces", "Crown of Kings"],
+  "choices": [...]
+}
+```
+
+Multiple items example:
+```json
+{
+  "node_id": "alchemy_ritual",
+  "title": "Perform the Ritual",
+  "description": "You perform the alchemical ritual using the ingredients.",
+  "item_cost": {
+    "Dragon Scale": 1,
+    "Moonflower": 3,
+    "Phoenix Feather": 1
+  },
+  "treasure": ["Elixir of Life"],
+  "choices": [...]
+}
+```
+
+See [sacred_temple_example.json](adventures/sacred_temple_example.json) for a working example.
 
 #### Ending Flags
 - **is_victory**: Set to `true` for winning endings

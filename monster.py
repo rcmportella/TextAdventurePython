@@ -120,10 +120,10 @@ class Goblin(Monster):
     def __init__(self):
         super().__init__(
             name="Goblin",
-            hit_dice="1d8",
-            armor_class=15,
-            attack_bonus=2,
-            damage="1d6",
+            hit_dice="2d6",
+            armor_class=12,
+            attack_bonus=0,
+            damage="1d4+2",
             treasure=["10 gold pieces"]
         )
         self.reflex_save = 3
@@ -134,10 +134,10 @@ class Orc(Monster):
     def __init__(self):
         super().__init__(
             name="Orc",
-            hit_dice="2d8+2",
+            hit_dice="2d8",
             armor_class=13,
-            attack_bonus=4,
-            damage="1d12+3",
+            attack_bonus=1,
+            damage="1d8",
             treasure=["20 gold pieces", "Battle axe"]
         )
         self.fortitude_save = 3

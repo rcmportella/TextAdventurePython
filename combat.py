@@ -281,6 +281,9 @@ COMMON_ITEMS = {
     'longsword': Weapon("Longsword", "1d8", 0, "A versatile steel blade"),
     'greatsword': Weapon("Greatsword", "2d6", 0, "A massive two-handed sword"),
     'dagger': Weapon("Dagger", "1d4", 0, "A small, quick blade"),
+    'mace': Weapon("Mace", "1d6", 0, "A blunt weapon favored by clerics"),
+    'staff': Weapon("Quarterstaff", "1d6", 0, "A simple wooden staff"),
     'leather_armor': Armor("Leather Armor", 2, "Light, flexible armor"),
     'chain_mail': Armor("Chain Mail", 5, "Heavy metal armor"),
+    'scale_mail': Armor("Scale Mail", 4, "Medium armor made of metal scales")   
 }

@@ -42,6 +42,11 @@ class AdventureLoader:
             starting_node_id=data['starting_node_id']
         )
         
+        # Load custom monsters if present
+        if 'custom_monsters' in data:
+            for monster_name, monster_stats in data['custom_monsters'].items():
+                adventure.add_custom_monster(monster_name, monster_stats)
+        
         # Add all nodes
         for node_data in data['nodes']:
             node = AdventureLoader._create_node(node_data)
@@ -99,8 +104,14 @@ class AdventureLoader:
         if node_data.get('is_defeat', False):
             node.set_defeat()
         
-        # Note: on_enter_events are not supported in JSON format
-        # They require Python functions and should be added programmatically if needed
+        # Add on_enter events for gold cost
+        if 'gold_cost' in node_data:
+            node.set_gold_cost(node_data['gold_cost'])
+        
+        # Add on_enter events for item costs
+        if 'item_cost' in node_data:
+            for item_name, quantity in node_data['item_cost'].items():
+                node.set_item_cost(item_name, quantity)
         
         return node
 
@@ -133,13 +144,19 @@ class AdventureExporter:
         Returns:
             Dictionary representation
         """
-        return {
+        result = {
             'title': adventure.title,
             'description': adventure.description,
             'starting_node_id': adventure.starting_node_id,
             'nodes': [AdventureExporter._node_to_dict(node) 
                      for node in adventure.nodes.values()]
         }
+        
+        # Add custom monsters if present
+        if adventure.custom_monsters:
+            result['custom_monsters'] = adventure.custom_monsters
+        
+        return result
     
     @staticmethod
     def _node_to_dict(node):
@@ -194,5 +211,11 @@ class AdventureExporter:
         
         if node.is_defeat:
             node_dict['is_defeat'] = True
+        
+        if node.gold_cost > 0:
+            node_dict['gold_cost'] = node.gold_cost
+        
+        if node.item_cost:
+            node_dict['item_cost'] = node.item_cost
         
         return node_dict

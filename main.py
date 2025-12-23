@@ -8,6 +8,7 @@ from game import GameEngine, GameUI
 from sample_adventure import create_sample_adventure, create_simple_adventure
 from adventure_loader import AdventureLoader
 from spell import get_spell
+from sound_manager import sound_manager
 
 
 def create_character():
@@ -38,14 +39,38 @@ def create_character():
     print("\nChoose ability score generation method:")
     print("  1. Standard (roll 4d6 drop lowest)")
     print("  2. Point buy (set scores manually)")
+    print("  3. Standard class scores")
     
-    method = input("\nEnter your choice (1-2): ")
+    method = input("\nEnter your choice (1-3): ")
     
     character = Character(name, char_class, level=1)
     
     if method == '1':
         character.roll_abilities()
         print("\nAbility scores rolled!")
+    elif method == '3':
+        if(char_class == 'Fighter'):
+            recommended = [15, 14, 13, 8, 10, 12]
+            character.equipped_weapon = 'Longsword'
+            character.equipped_armor = 'Chainmail'
+        elif(char_class == 'Wizard'):
+            recommended = [8, 12, 13, 15, 14, 10]
+            character.equipped_weapon = 'Staff'
+        elif(char_class == 'Rogue'):
+            recommended = [12, 15, 13, 14, 10, 8]
+            character.equipped_weapon = 'Dagger'
+            character.equipped_armor = 'Leather Armor'
+        elif(char_class == 'Cleric'):
+            recommended = [14, 8, 13, 10, 15, 12]
+            character.equipped_weapon = 'Mace'
+            character.equipped_armor = 'Scale Mail'
+        str_score = recommended[0]
+        dex = recommended[1]
+        con = recommended[2]
+        int_score = recommended[3]
+        wis = recommended[4]
+        cha = recommended[5]
+        character.set_abilities(str_score, dex, con, int_score, wis, cha)
     else:
         print("\nEnter ability scores (recommended: 15, 14, 13, 12, 10, 8):")
         str_score = int(input("Strength: "))
@@ -77,6 +102,9 @@ def play_adventure(game_engine):
     """Main game loop"""
     ui = GameUI()
     
+    # Start background music
+    sound_manager.play_music('adventure_theme.wav')
+    
     # Start the game
     result = game_engine.start_game()
     
@@ -90,10 +118,12 @@ def play_adventure(game_engine):
         if result.get('trap_messages'):
             ui.display_messages(result['trap_messages'])
         if result.get('treasure_messages'):
+            sound_manager.play_sound('treasure')
             ui.display_messages(result['treasure_messages'])
         
         # Check if there's combat
         if result.get('has_combat'):
+            sound_manager.play_sound('combat_start')
             print("\n" + "!"*60)
             print("COMBAT BEGINS!".center(60))
             print("!"*60)
@@ -161,10 +191,14 @@ def play_adventure(game_engine):
             # Handle combat result
             result = game_engine.handle_combat_result(combat_result)
             
+            if result.get('victory'):
+                sound_manager.play_sound('victory')
+            
             if result.get('messages'):
                 ui.display_messages(result['messages'])
             
             if result['status'] == 'game_over':
+                sound_manager.play_sound('defeat')
                 game_engine.game_over = True
                 print("\n" + result['message'])
                 break
@@ -177,7 +211,7 @@ def play_adventure(game_engine):
             ui.display_choices(game_engine.current_node)
             
             # Additional commands
-            print("\nOther commands: [S]tatus, [H]elp, [Q]uit")
+            print("\nOther commands: [S]tatus, [I]tem, [H]elp, [Q]uit")
             
             choice = input("\nYour choice: ").strip().lower()
             
@@ -186,11 +220,42 @@ def play_adventure(game_engine):
                 print("\nPress Enter to continue...")
                 input()
                 continue
+            elif choice == 'i':
+                # Use item from inventory
+                sound_manager.play_sound('menu_select')
+                if not game_engine.character.inventory:
+                    print("\nYour inventory is empty.")
+                else:
+                    print("\n=== INVENTORY ===")
+                    for idx, item in enumerate(game_engine.character.inventory, 1):
+                        print(f"{idx}. {item.name} - {item.description}")
+                    
+                    item_choice = input("\nEnter item number to use (or press Enter to cancel): ").strip()
+                    if item_choice:
+                        try:
+                            item_idx = int(item_choice) - 1
+                            if 0 <= item_idx < len(game_engine.character.inventory):
+                                item = game_engine.character.inventory[item_idx]
+                                effect = game_engine.character.use_item(item.name)
+                                if effect:
+                                    # Play healing sound for potions
+                                    if 'potion' in item.name.lower():
+                                        sound_manager.play_sound('healing')
+                                    print(f"\n{effect}")
+                                else:
+                                    print("\nCouldn't use that item.")
+                            else:
+                                print("\nInvalid item number.")
+                        except ValueError:
+                            print("\nInvalid input.")
+                print("\nPress Enter to continue...")
+                input()
+                continue
             elif choice == 'h':
                 print("\n=== HELP ===")
                 print("Enter the number of your choice to make a decision.")
                 print("Combat: Choose actions during combat to defeat enemies.")
-                print("Commands: S=Status, H=Help, Q=Quit")
+                print("Commands: S=Status, I=Item, H=Help, Q=Quit")
                 print("\nPress Enter to continue...")
                 input()
                 continue
@@ -211,14 +276,16 @@ def play_adventure(game_engine):
                     print("Press Enter to continue...")
                     input()
                 elif result['status'] == 'victory':
+                    sound_manager.play_sound('victory')
                     print("\n" + "="*60)
                     print("VICTORY!".center(60))
                     print("="*60)
                     print(f"\n{game_engine.current_node.description}")
                     game_engine.game_over = True
                 elif result['status'] == 'defeat':
+                    sound_manager.play_sound('defeat')
                     print("\n" + "="*60)
-                    print("DEFEAT".center(60))
+                    print("DEFEAT!".center(60))
                     print("="*60)
                     print(f"\n{game_engine.current_node.description}")
                     game_engine.game_over = True
@@ -231,6 +298,9 @@ def play_adventure(game_engine):
     print("\n" + "="*60)
     print("GAME OVER")
     print("="*60)
+    
+    # Stop music when game ends
+    sound_manager.stop_music()
     print(f"\nFinal Status:")
     ui.display_character(game_engine.character)
 

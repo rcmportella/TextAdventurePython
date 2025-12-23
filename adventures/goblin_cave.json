@@ -21,9 +21,9 @@
     {
       "node_id": "goblin_room",
       "title": "Goblin Den",
-      "description": "Three goblins are sitting around a fire, roasting something unpleasant. They spot you and attack!",
-      "monsters": ["goblin", "goblin", "goblin"],
-      "treasure": ["40 gold pieces", "Potion of Healing"],
+      "description": "A goblin is sitting around a fire, roasting something unpleasant. They spot you and attack!",
+      "monsters": ["goblin"],
+      "treasure": ["10 gold pieces", "Potion of Healing"],
       "choices": [
         {
           "text": "Continue deeper into the cave",

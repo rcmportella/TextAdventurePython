@@ -1,4 +1,4 @@
-# No external dependencies required
-# This project uses only Python standard library
-
 # Python version: 3.6+
+
+# Optional dependencies for enhanced features
+pygame>=2.0.0  # For sound effects and music

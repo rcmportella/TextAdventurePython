@@ -39,6 +39,8 @@ class GameNode:
         
         # Events that trigger when entering node
         self.on_enter_events = []
+        self.gold_cost = 0  # Gold required to enter this node
+        self.item_cost = {}  # Items required to enter this node {"item_name": quantity}
         
     def add_monster_encounter(self, monster_types):
         """
@@ -112,6 +114,50 @@ class GameNode:
             event_func: Function that takes (character, node) and returns message
         """
         self.on_enter_events.append(event_func)
+    
+    def set_gold_cost(self, amount):
+        """
+        Set the gold cost to enter this node.
+        This will automatically create an on_enter event that deducts gold.
+        
+        Args:
+            amount: Amount of gold required
+        """
+        self.gold_cost = amount
+        
+        def gold_cost_event(character, node):
+            """Event that removes gold when entering node"""
+            if character.remove_gold(amount):
+                return f"You pay {amount} gold to enter. (Remaining: {character.gold} gp)"
+            else:
+                return f"WARNING: You don't have enough gold! ({character.gold}/{amount} gp needed)"
+        
+        self.add_on_enter_event(gold_cost_event)
+    
+    def set_item_cost(self, item_name, quantity):
+        """
+        Set an item cost to enter this node.
+        This will automatically create an on_enter event that deducts items.
+        
+        Args:
+            item_name: Name of the item required
+            quantity: Number of items required
+        """
+        self.item_cost[item_name] = quantity
+        
+        def item_cost_event(character, node):
+            """Event that removes items when entering node"""
+            available = character.count_item(item_name)
+            if character.remove_items(item_name, quantity):
+                return f"You use {quantity}x {item_name} to enter. (Remaining: {available - quantity})"
+            else:
+                return f"WARNING: You don't have enough {item_name}! ({available}/{quantity} needed)"
+        
+        self.add_on_enter_event(item_cost_event)
+    
+    def add_item_cost(self, item_name, quantity):
+        """Add an item cost (can have multiple different item costs)."""
+        self.set_item_cost(item_name, quantity)
         
     def execute_on_enter(self, character):
         """Execute all on-enter events"""
@@ -206,17 +252,39 @@ class GameNode:
         """Check if this node has combat encounters"""
         return len(self.monsters) > 0
         
-    def create_combat(self, character):
+    def create_combat(self, character, adventure=None):
         """
         Create a combat encounter from this node's monsters.
         
         Args:
             character: Player character
+            adventure: Adventure instance (optional, for custom monsters)
             
         Returns:
             Combat instance
         """
-        monster_instances = [create_monster(m_type) for m_type in self.monsters]
+        from monster import Monster
+        monster_instances = []
+        
+        for m_type in self.monsters:
+            # Check if it's a custom monster
+            if adventure and m_type in adventure.custom_monsters:
+                # Create custom monster
+                stats = adventure.custom_monsters[m_type]
+                monster = Monster(
+                    name=m_type,
+                    hit_dice=stats.get('hit_dice', '2d8'),
+                    armor_class=stats.get('armor_class', 12),
+                    attack_bonus=stats.get('attack_bonus', 2),
+                    damage=stats.get('damage', '1d6'),
+                    special_abilities=stats.get('special_abilities', []),
+                    treasure=stats.get('treasure', [])
+                )
+                monster_instances.append(monster)
+            else:
+                # Use predefined monster
+                monster_instances.append(create_monster(m_type))
+        
         return Combat(character, monster_instances)
         
     def collect_treasure(self, character):
@@ -235,7 +303,8 @@ class GameNode:
             if 'gold' in item.lower():
                 # Extract gold amount
                 amount = int(''.join(filter(str.isdigit, item)))
-                messages.append(f"You found {amount} gold pieces!")
+                character.add_gold(amount)
+                messages.append(f"You found {amount} gold pieces! (Total: {character.gold} gp)")
             elif 'potion' in item.lower():
                 character.add_item(HealingPotion())
                 messages.append(f"You found a {item}!")
@@ -290,6 +359,7 @@ class Adventure:
         self.description = description
         self.starting_node_id = starting_node_id
         self.nodes = {}  # Dictionary of node_id -> GameNode
+        self.custom_monsters = {}  # Dictionary of custom monster definitions
         
     def add_node(self, node):
         """Add a node to the adventure"""
@@ -302,6 +372,14 @@ class Adventure:
     def get_starting_node(self):
         """Get the starting node"""
         return self.nodes.get(self.starting_node_id)
+    
+    def add_custom_monster(self, monster_name, stats):
+        """Add a custom monster definition to the adventure"""
+        self.custom_monsters[monster_name] = stats
+    
+    def get_custom_monster(self, monster_name):
+        """Get custom monster stats by name"""
+        return self.custom_monsters.get(monster_name)
         
     def __str__(self):
         return f"{self.title}: {len(self.nodes)} locations"

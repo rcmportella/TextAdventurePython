@@ -108,13 +108,14 @@ def validate_adventure(filepath):
         # Validate monsters
         if 'monsters' in node:
             valid_monsters = ['goblin', 'orc', 'skeleton', 'giant_spider', 'zombie', 'ogre', 'troll', 'dragon']
+            custom_monsters = data.get('custom_monsters', {}).keys()
             monsters = node['monsters']
             if not isinstance(monsters, list):
                 errors.append(f"Node '{node_id}': 'monsters' must be a list")
             else:
                 for monster in monsters:
-                    if monster not in valid_monsters:
-                        warnings.append(f"Node '{node_id}': Unknown monster type '{monster}'")
+                    if monster not in valid_monsters and monster not in custom_monsters:
+                        warnings.append(f"Node '{node_id}': Unknown monster type '{monster}' (not predefined or custom)")
         
         # Validate traps
         if 'traps' in node:

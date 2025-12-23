@@ -42,8 +42,9 @@ class Character:
         self.known_spells = []
         self.spell_slots = {}  # {level: available_slots}
         
-        # Experience
+        # Experience and wealth
         self.experience = 0
+        self.gold = 0
         
     def roll_abilities(self):
         """Roll ability scores using 4d6 drop lowest method"""
@@ -210,6 +211,55 @@ class Character:
     def add_item(self, item):
         """Add item to inventory"""
         self.inventory.append(item)
+    
+    def add_gold(self, amount):
+        """Add gold to character's wealth"""
+        self.gold += amount
+        return self.gold
+    
+    def remove_gold(self, amount):
+        """Remove gold from character. Returns True if successful, False if not enough gold."""
+        if self.gold >= amount:
+            self.gold -= amount
+            return True
+        return False
+    
+    def count_item(self, item_name):
+        """Count how many items with the given name are in inventory."""
+        count = 0
+        for item in self.inventory:
+            # Handle both string items and item objects
+            if hasattr(item, 'name'):
+                if item.name.lower() == item_name.lower():
+                    count += 1
+            elif isinstance(item, str):
+                if item.lower() == item_name.lower():
+                    count += 1
+        return count
+    
+    def remove_items(self, item_name, quantity):
+        """Remove a specific quantity of items. Returns True if successful, False if not enough."""
+        if self.count_item(item_name) >= quantity:
+            removed = 0
+            # Create a new list without the removed items
+            new_inventory = []
+            for item in self.inventory:
+                # Check if this is the item to remove
+                is_target = False
+                if hasattr(item, 'name'):
+                    is_target = item.name.lower() == item_name.lower()
+                elif isinstance(item, str):
+                    is_target = item.lower() == item_name.lower()
+                
+                # Remove if we haven't removed enough yet
+                if is_target and removed < quantity:
+                    removed += 1
+                else:
+                    new_inventory.append(item)
+            
+            self.inventory = new_inventory
+            return True
+        return False
         
     def use_item(self, item_name):
         """Use an item from inventory"""
@@ -261,9 +311,77 @@ class Character:
         """Level up the character"""
         self.level += 1
         self._update_derived_stats()
+    
+    def get_character_sheet(self, detailed=True):
+        """
+        Get a formatted character sheet.
+        
+        Args:
+            detailed: If True, shows full character sheet. If False, shows compact version.
+        
+        Returns:
+            Formatted character sheet string
+        """
+        if detailed:
+            # Detailed character sheet
+            sheet = "=" * 60 + "\n"
+            sheet += f"  {self.name.upper()}\n"
+            sheet += f"  Level {self.level} {self.char_class}\n"
+            sheet += "=" * 60 + "\n\n"
+            
+            # Combat Stats
+            sheet += "COMBAT STATS:\n"
+            sheet += f"  Hit Points:        {self.current_hp}/{self.max_hp}\n"
+            sheet += f"  Armor Class:       {self.armor_class}\n"
+            sheet += f"  Base Attack Bonus: +{self.base_attack_bonus}\n"
+            sheet += f"  Experience:        {self.experience} XP\n"
+            sheet += f"  Gold:              {self.gold} gp\n\n"
+            
+            # Ability Scores with Modifiers
+            sheet += "ABILITY SCORES:\n"
+            sheet += f"  Strength:      {self.strength:2d} ({self.get_ability_modifier('strength'):+d})\n"
+            sheet += f"  Dexterity:     {self.dexterity:2d} ({self.get_ability_modifier('dexterity'):+d})\n"
+            sheet += f"  Constitution:  {self.constitution:2d} ({self.get_ability_modifier('constitution'):+d})\n"
+            sheet += f"  Intelligence:  {self.intelligence:2d} ({self.get_ability_modifier('intelligence'):+d})\n"
+            sheet += f"  Wisdom:        {self.wisdom:2d} ({self.get_ability_modifier('wisdom'):+d})\n"
+            sheet += f"  Charisma:      {self.charisma:2d} ({self.get_ability_modifier('charisma'):+d})\n\n"
+            
+            # Saving Throws
+            sheet += "SAVING THROWS:\n"
+            sheet += f"  Fortitude: +{self.fortitude_save}\n"
+            sheet += f"  Reflex:    +{self.reflex_save}\n"
+            sheet += f"  Will:      +{self.will_save}\n\n"
+            
+            # Equipment
+            sheet += "EQUIPMENT:\n"
+            if self.equipped_weapon:
+                sheet += f"  Weapon: {self.equipped_weapon}\n"
+            if self.equipped_armor:
+                sheet += f"  Armor:  {self.equipped_armor}\n"
+            if not self.equipped_weapon and not self.equipped_armor:
+                sheet += "  None equipped\n"
+            
+            # Inventory
+            if self.inventory:
+                sheet += f"\nINVENTORY ({len(self.inventory)} items):\n"
+                for item in self.inventory:
+                    sheet += f"  - {item}\n"
+            
+            # Spells
+            if self.known_spells:
+                sheet += f"\nKNOWN SPELLS ({len(self.known_spells)}):\n"
+                for spell in self.known_spells:
+                    sheet += f"  - {spell.name}\n"
+            
+            sheet += "=" * 60
+            return sheet
+        else:
+            # Compact version (original format)
+            return (f"{self.name} - Level {self.level} {self.char_class}\n"
+                    f"HP: {self.current_hp}/{self.max_hp} | AC: {self.armor_class} | Gold: {self.gold}\n"
+                    f"STR: {self.strength} DEX: {self.dexterity} CON: {self.constitution}\n"
+                    f"INT: {self.intelligence} WIS: {self.wisdom} CHA: {self.charisma}")
         
     def __str__(self):
-        return (f"{self.name} - Level {self.level} {self.char_class}\n"
-                f"HP: {self.current_hp}/{self.max_hp} | AC: {self.armor_class}\n"
-                f"STR: {self.strength} DEX: {self.dexterity} CON: {self.constitution}\n"
-                f"INT: {self.intelligence} WIS: {self.wisdom} CHA: {self.charisma}")
+        """Default string representation - returns compact version"""
+        return self.get_character_sheet(detailed=False)
