@@ -153,7 +153,9 @@ class AdventureBuilder:
             print("2. Edit Existing Node")
             print("3. Delete Node")
             print("4. Edit Adventure Info (title, description, starting node)")
-            print("5. Back to Main Menu")
+            print("5. List All Nodes (complete)")
+            print("6. List All Node IDs (simple)")
+            print("7. Back to Main Menu")
             
             choice = input("\nChoice: ").strip()
             
@@ -166,6 +168,10 @@ class AdventureBuilder:
             elif choice == '4':
                 self.edit_adventure_info()
             elif choice == '5':
+                self.list_all_nodes()
+            elif choice == '6':
+                self.list_all_nodes_simple()    
+            elif choice == '7':
                 break
     
     def create_node(self, node_id=None):
@@ -747,6 +753,58 @@ class AdventureBuilder:
             print("⚠️  Warning: Update any choices that reference this node!")
         else:
             print("Cancelled.")
+    
+    def list_all_nodes(self):
+        """Display a list of all nodes in the adventure"""
+        print("\n" + "="*70)
+        print("ALL NODES")
+        print("="*70)
+        
+        if not self.adventure.nodes:
+            print("\n❌ No nodes in this adventure yet.")
+            input("\nPress Enter to continue...")
+            return
+        
+        print(f"\nTotal nodes: {len(self.adventure.nodes)}")
+        print(f"Starting node: {self.adventure.starting_node_id}")
+        print("\n" + "-"*70)
+        
+        for i, (node_id, node) in enumerate(sorted(self.adventure.nodes.items()), 1):
+            marker = "►" if node_id == self.adventure.starting_node_id else " "
+            ending = " [VICTORY]" if node.is_victory else " [DEFEAT]" if node.is_defeat else ""
+            
+            print(f"\n{i}. {marker} {node_id}{ending}")
+            print(f"   Title: {node.title}")
+            print(f"   Monsters: {len(node.monsters)}, Treasure: {len(node.treasure)}, Traps: {len(node.traps)}, Choices: {len(node.choices)}")
+            
+            if node.gold_cost > 0:
+                print(f"   💰 Gold cost: {node.gold_cost}")
+            if node.item_cost:
+                items = ", ".join([f"{qty}x {name}" for name, qty in node.item_cost.items()])
+                print(f"   🔑 Item cost: {items}")
+        
+        input("\nPress Enter to continue...")
+    
+    def list_all_nodes_simple(self):
+        """Display a simple list of all node IDs"""
+        print("\n" + "="*70)
+        print("ALL NODE IDS")
+        print("="*70)
+        
+        if not self.adventure.nodes:
+            print("\n❌ No nodes in this adventure yet.")
+            input("\nPress Enter to continue...")
+            return
+        
+        print(f"\nTotal nodes: {len(self.adventure.nodes)}")
+        print(f"Starting node: {self.adventure.starting_node_id}")
+        print("\nNode IDs:")
+        
+        for node_id in sorted(self.adventure.nodes.keys()):
+            marker = "►" if node_id == self.adventure.starting_node_id else " "
+            print(f"  {marker} {node_id}")
+        
+        input("\nPress Enter to continue...")
     
     def edit_adventure_info(self):
         """Edit adventure metadata"""
