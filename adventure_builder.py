@@ -37,37 +37,38 @@ class AdventureBuilder:
             
             choice = input("\nChoice: ").strip()
             
-            if choice == '1':
-                self.create_new_adventure()
-            elif choice == '2':
-                self.load_adventure()
-            elif choice == '3':
-                if self.adventure:
-                    self.edit_adventure_menu()
-                else:
-                    print("\n⚠️  No adventure loaded. Create or load one first.")
-            elif choice == '4':
-                if self.adventure:
-                    self.view_structure()
-                else:
-                    print("\n⚠️  No adventure loaded.")
-            elif choice == '5':
-                if self.adventure:
-                    self.validate_adventure()
-                else:
-                    print("\n⚠️  No adventure loaded.")
-            elif choice == '6':
-                if self.adventure:
-                    self.save_adventure()
-                else:
-                    print("\n⚠️  No adventure loaded.")
-            elif choice == '7':
-                if self.adventure:
-                    save = input("\nSave before exiting? (y/n): ").strip().lower()
-                    if save == 'y':
+            match choice:
+                case '1':
+                    self.create_new_adventure()
+                case '2':
+                    self.load_adventure()
+                case '3':
+                    if self.adventure:
+                        self.edit_adventure_menu()
+                    else:
+                        print("\n⚠️  No adventure loaded. Create or load one first.")
+                case '4':
+                    if self.adventure:
+                        self.view_structure()
+                    else:
+                        print("\n⚠️  No adventure loaded.")
+                case '5':
+                    if self.adventure:
+                        self.validate_adventure()
+                    else:
+                        print("\n⚠️  No adventure loaded.")
+                case '6':
+                    if self.adventure:
                         self.save_adventure()
-                print("\nGoodbye! Happy adventuring! 🎮")
-                break
+                    else:
+                        print("\n⚠️  No adventure loaded.")
+                case '7':
+                    if self.adventure:
+                        save = input("\nSave before exiting? (y/n): ").strip().lower()
+                        if save == 'y':
+                            self.save_adventure()
+                    print("\nGoodbye! Happy adventuring! 🎮")
+                    break
     
     def create_new_adventure(self):
         """Create a new adventure from scratch"""
@@ -159,20 +160,21 @@ class AdventureBuilder:
             
             choice = input("\nChoice: ").strip()
             
-            if choice == '1':
-                self.create_node()
-            elif choice == '2':
-                self.edit_node()
-            elif choice == '3':
-                self.delete_node()
-            elif choice == '4':
-                self.edit_adventure_info()
-            elif choice == '5':
-                self.list_all_nodes()
-            elif choice == '6':
-                self.list_all_nodes_simple()    
-            elif choice == '7':
-                break
+            match choice:
+                case '1':
+                    self.create_node()
+                case '2':
+                    self.edit_node()
+                case '3':
+                    self.delete_node()
+                case '4':
+                    self.edit_adventure_info()
+                case '5':
+                    self.list_all_nodes()
+                case '6':
+                    self.list_all_nodes_simple()
+                case '7':
+                    break
     
     def create_node(self, node_id=None):
         """Create a new node"""
@@ -254,15 +256,16 @@ class AdventureBuilder:
         print("3. Defeat ending")
         ending = input("Choice: ").strip()
         
-        if ending == '2':
-            node.set_victory()
-            print("✓ Marked as victory ending")
-        elif ending == '3':
-            node.set_defeat()
-            print("✓ Marked as defeat ending")
-        else:
-            # Add choices
-            self.add_choices_to_node(node)
+        match ending:
+            case '2':
+                node.set_victory()
+                print("✓ Marked as victory ending")
+            case '3':
+                node.set_defeat()
+                print("✓ Marked as defeat ending")
+            case _:
+                # Add choices
+                self.add_choices_to_node(node)
         
         # Add to adventure
         self.adventure.add_node(node)
@@ -481,38 +484,39 @@ class AdventureBuilder:
                 
                 req_type = input("Choice: ").strip()
                 
-                if req_type == '1':
-                    print("\nAbility: str, dex, con, int, wis, cha")
-                    ability = input("Ability: ").strip().lower()
-                    if ability in ['strength', 'str']:
-                        ability = 'strength'
-                    elif ability in ['dexterity', 'dex']:
-                        ability = 'dexterity'
-                    elif ability in ['constitution', 'con']:
-                        ability = 'constitution'
-                    elif ability in ['intelligence', 'int']:
-                        ability = 'intelligence'
-                    elif ability in ['wisdom', 'wis']:
-                        ability = 'wisdom'
-                    elif ability in ['charisma', 'cha']:
-                        ability = 'charisma'
-                    
-                    if ability in ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']:
+                match req_type:
+                    case '1':
+                        print("\nAbility: str, dex, con, int, wis, cha")
+                        ability = input("Ability: ").strip().lower()
+                        if ability in ['strength', 'str']:
+                            ability = 'strength'
+                        elif ability in ['dexterity', 'dex']:
+                            ability = 'dexterity'
+                        elif ability in ['constitution', 'con']:
+                            ability = 'constitution'
+                        elif ability in ['intelligence', 'int']:
+                            ability = 'intelligence'
+                        elif ability in ['wisdom', 'wis']:
+                            ability = 'wisdom'
+                        elif ability in ['charisma', 'cha']:
+                            ability = 'charisma'
+                        
+                        if ability in ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']:
+                            try:
+                                score = int(input(f"Required {ability} score: ").strip())
+                                requirements[ability] = score
+                            except ValueError:
+                                print("❌ Invalid score.")
+                    case '2':
+                        item = input("Required item name: ").strip()
+                        if item:
+                            requirements['item'] = item
+                    case '3':
                         try:
-                            score = int(input(f"Required {ability} score: ").strip())
-                            requirements[ability] = score
+                            level = int(input("Required level: ").strip())
+                            requirements['level'] = level
                         except ValueError:
-                            print("❌ Invalid score.")
-                elif req_type == '2':
-                    item = input("Required item name: ").strip()
-                    if item:
-                        requirements['item'] = item
-                elif req_type == '3':
-                    try:
-                        level = int(input("Required level: ").strip())
-                        requirements['level'] = level
-                    except ValueError:
-                        print("❌ Invalid level.")
+                            print("❌ Invalid level.")
             
             node.add_choice(choice_text, target, requirements)
             print(f"✓ Choice added → {target}")
@@ -577,147 +581,155 @@ class AdventureBuilder:
             
             edit_choice = input("\nChoice: ").strip()
             
-            if edit_choice == '1':
-                new_title = input(f"New title [{node.title}]: ").strip()
-                if new_title:
-                    node.title = new_title
-                    print("✓ Title updated")
-            
-            elif edit_choice == '2':
-                print("\nNew description (press Enter twice or type END):")
-                description_lines = []
-                while True:
-                    line = input()
-                    if line == "END" or (line == "" and description_lines and description_lines[-1] == ""):
-                        if description_lines and description_lines[-1] == "":
-                            description_lines.pop()
-                        break
-                    description_lines.append(line)
-                new_desc = "\n".join(description_lines).strip()
-                if new_desc:
-                    node.description = new_desc
-                    print("✓ Description updated")
-            
-            elif edit_choice == '3':
-                print("\nCurrent monsters:", node.monsters)
-                print("1. Add monsters")
-                print("2. Clear all monsters")
-                m_choice = input("Choice: ").strip()
-                if m_choice == '1':
-                    self.add_monsters_to_node(node)
-                elif m_choice == '2':
-                    node.monsters = []
-                    print("✓ Monsters cleared")
-            
-            elif edit_choice == '4':
-                print("\nCurrent treasure:", node.treasure)
-                print("1. Add treasure")
-                print("2. Clear all treasure")
-                t_choice = input("Choice: ").strip()
-                if t_choice == '1':
-                    self.add_treasure_to_node(node)
-                elif t_choice == '2':
-                    node.treasure = []
-                    print("✓ Treasure cleared")
-            
-            elif edit_choice == '5':
-                print("\nCurrent traps:", node.traps)
-                print("1. Add traps")
-                print("2. Clear all traps")
-                trap_choice = input("Choice: ").strip()
-                if trap_choice == '1':
-                    self.add_traps_to_node(node)
-                elif trap_choice == '2':
-                    node.traps = []
-                    print("✓ Traps cleared")
-            
-            elif edit_choice == '6':
-                print("\nCurrent choices:")
-                for i, c in enumerate(node.choices, 1):
-                    print(f"  {i}. {c['text']} → {c['target']}")
-                print("\n1. Add choice")
-                print("2. Remove choice")
-                print("3. Clear all choices")
-                c_choice = input("Choice: ").strip()
+            match edit_choice:
+                case '1':
+                    new_title = input(f"New title [{node.title}]: ").strip()
+                    if new_title:
+                        node.title = new_title
+                        print("✓ Title updated")
                 
-                if c_choice == '1':
-                    self.add_choices_to_node(node)
-                elif c_choice == '2':
-                    try:
-                        idx = int(input("Remove choice #: ").strip()) - 1
-                        if 0 <= idx < len(node.choices):
-                            removed = node.choices.pop(idx)
-                            print(f"✓ Removed: {removed['text']}")
-                    except (ValueError, IndexError):
-                        print("❌ Invalid choice number")
-                elif c_choice == '3':
-                    node.choices = []
-                    print("✓ Choices cleared")
-            
-            elif edit_choice == '7':
-                print(f"\nCurrent gold cost: {node.gold_cost}")
-                print("1. Set gold cost")
-                print("2. Remove gold cost")
-                gc_choice = input("Choice: ").strip()
-                if gc_choice == '1':
-                    self.add_gold_cost_to_node(node)
-                elif gc_choice == '2':
-                    node.gold_cost = 0
-                    # Remove gold cost event if it exists
-                    node.on_enter_events = []
-                    print("✓ Gold cost removed")
-            
-            elif edit_choice == '8':
-                print(f"\nCurrent item costs:")
-                if node.item_cost:
-                    for item_name, qty in node.item_cost.items():
-                        print(f"  - {qty}x {item_name}")
-                else:
-                    print("  None")
-                print("\n1. Add item cost")
-                print("2. Remove item cost")
-                print("3. Clear all item costs")
-                ic_choice = input("Choice: ").strip()
-                if ic_choice == '1':
-                    self.add_item_cost_to_node(node)
-                elif ic_choice == '2':
+                case '2':
+                    print("\nNew description (press Enter twice or type END):")
+                    description_lines = []
+                    while True:
+                        line = input()
+                        if line == "END" or (line == "" and description_lines and description_lines[-1] == ""):
+                            if description_lines and description_lines[-1] == "":
+                                description_lines.pop()
+                            break
+                        description_lines.append(line)
+                    new_desc = "\n".join(description_lines).strip()
+                    if new_desc:
+                        node.description = new_desc
+                        print("✓ Description updated")
+                
+                case '3':
+                    print("\nCurrent monsters:", node.monsters)
+                    print("1. Add monsters")
+                    print("2. Clear all monsters")
+                    m_choice = input("Choice: ").strip()
+                    match m_choice:
+                        case '1':
+                            self.add_monsters_to_node(node)
+                        case '2':
+                            node.monsters = []
+                            print("✓ Monsters cleared")
+                
+                case '4':
+                    print("\nCurrent treasure:", node.treasure)
+                    print("1. Add treasure")
+                    print("2. Clear all treasure")
+                    t_choice = input("Choice: ").strip()
+                    match t_choice:
+                        case '1':
+                            self.add_treasure_to_node(node)
+                        case '2':
+                            node.treasure = []
+                            print("✓ Treasure cleared")
+                
+                case '5':
+                    print("\nCurrent traps:", node.traps)
+                    print("1. Add traps")
+                    print("2. Clear all traps")
+                    trap_choice = input("Choice: ").strip()
+                    match trap_choice:
+                        case '1':
+                            self.add_traps_to_node(node)
+                        case '2':
+                            node.traps = []
+                            print("✓ Traps cleared")
+                
+                case '6':
+                    print("\nCurrent choices:")
+                    for i, c in enumerate(node.choices, 1):
+                        print(f"  {i}. {c['text']} → {c['target']}")
+                    print("\n1. Add choice")
+                    print("2. Remove choice")
+                    print("3. Clear all choices")
+                    c_choice = input("Choice: ").strip()
+                    
+                    match c_choice:
+                        case '1':
+                            self.add_choices_to_node(node)
+                        case '2':
+                            try:
+                                idx = int(input("Remove choice #: ").strip()) - 1
+                                if 0 <= idx < len(node.choices):
+                                    removed = node.choices.pop(idx)
+                                    print(f"✓ Removed: {removed['text']}")
+                            except (ValueError, IndexError):
+                                print("❌ Invalid choice number")
+                        case '3':
+                            node.choices = []
+                            print("✓ Choices cleared")
+                
+                case '7':
+                    print(f"\nCurrent gold cost: {node.gold_cost}")
+                    print("1. Set gold cost")
+                    print("2. Remove gold cost")
+                    gc_choice = input("Choice: ").strip()
+                    match gc_choice:
+                        case '1':
+                            self.add_gold_cost_to_node(node)
+                        case '2':
+                            node.gold_cost = 0
+                            # Remove gold cost event if it exists
+                            node.on_enter_events = []
+                            print("✓ Gold cost removed")
+                
+                case '8':
+                    print(f"\nCurrent item costs:")
                     if node.item_cost:
-                        item_name = input("Item name to remove: ").strip()
-                        if item_name in node.item_cost:
-                            del node.item_cost[item_name]
-                            print(f"✓ Removed {item_name} cost")
-                        else:
-                            print("❌ Item cost not found")
+                        for item_name, qty in node.item_cost.items():
+                            print(f"  - {qty}x {item_name}")
                     else:
-                        print("❌ No item costs to remove")
-                elif ic_choice == '3':
-                    node.item_cost = {}
-                    # Remove item cost events
-                    node.on_enter_events = [e for e in node.on_enter_events if 'item' not in str(e)]
-                    print("✓ All item costs cleared")
-            
-            elif edit_choice == '9':
-                print(f"\nCurrent: Victory={node.is_victory}, Defeat={node.is_defeat}")
-                print("1. Set as victory")
-                print("2. Set as defeat")
-                print("3. Clear flags (normal node)")
-                flag_choice = input("Choice: ").strip()
+                        print("  None")
+                    print("\n1. Add item cost")
+                    print("2. Remove item cost")
+                    print("3. Clear all item costs")
+                    ic_choice = input("Choice: ").strip()
+                    match ic_choice:
+                        case '1':
+                            self.add_item_cost_to_node(node)
+                        case '2':
+                            if node.item_cost:
+                                item_name = input("Item name to remove: ").strip()
+                                if item_name in node.item_cost:
+                                    del node.item_cost[item_name]
+                                    print(f"✓ Removed {item_name} cost")
+                                else:
+                                    print("❌ Item cost not found")
+                            else:
+                                print("❌ No item costs to remove")
+                        case '3':
+                            node.item_cost = {}
+                            # Remove item cost events
+                            node.on_enter_events = [e for e in node.on_enter_events if 'item' not in str(e)]
+                            print("✓ All item costs cleared")
                 
-                if flag_choice == '1':
-                    node.is_victory = True
-                    node.is_defeat = False
-                    print("✓ Set as victory")
-                elif flag_choice == '2':
-                    node.is_victory = False
-                    node.is_defeat = True
-                    print("✓ Set as defeat")
-                elif flag_choice == '3':
-                    node.is_victory = False
-                    node.is_defeat = False
-                    print("✓ Flags cleared")
-            
-            elif edit_choice == '10':
-                break
+                case '9':
+                    print(f"\nCurrent: Victory={node.is_victory}, Defeat={node.is_defeat}")
+                    print("1. Set as victory")
+                    print("2. Set as defeat")
+                    print("3. Clear flags (normal node)")
+                    flag_choice = input("Choice: ").strip()
+                    
+                    match flag_choice:
+                        case '1':
+                            node.is_victory = True
+                            node.is_defeat = False
+                            print("✓ Set as victory")
+                        case '2':
+                            node.is_victory = False
+                            node.is_defeat = True
+                            print("✓ Set as defeat")
+                        case '3':
+                            node.is_victory = False
+                            node.is_defeat = False
+                            print("✓ Flags cleared")
+                
+                case '10':
+                    break
     
     def delete_node(self):
         """Delete a node"""
