@@ -332,6 +332,97 @@
           "target": "18"
         }
       ]
+    },
+    {
+      "node_id": "20",
+      "title": "20",
+      "description": "Caminhando para o leste, voc\u00ea se depara com uma ramifica\u00e7\u00e3o da trilha que seuge para o sul. Voc\u00ea decide ignorar isso e continua para o leste.",
+      "choices": [
+        {
+          "text": "Continue para o leste.",
+          "target": "277"
+        }
+      ]
+    },
+    {
+      "node_id": "21",
+      "title": "21",
+      "description": "A dor aumenta, e voc\u00ea rapidamente procura em sua mochila e retira a pequena garrafa com o r\u00f3tulo de Po\u00e7\u00e3o Antiveneno. Voc\u00ea engole o cnte\u00fado. Seu corpo relaxa, e os efeitos do veneno v\u00e3o sumindo. Voc\u00ea fica imaginando o que mais est\u00e1 reservado para voc\u00ea nessa floresta e volta-se para o norte, subindo a trilha.",
+      "choices": [
+        {
+          "text": "Continue para o norte.",
+          "target": "226"
+        }
+      ],
+      "item_cost": {
+        "Po\u00e7\u00e3o Antiveneno": 1
+      }
+    },
+    {
+      "node_id": "22",
+      "title": "22",
+      "description": "O g\u00e1s \u00e9 t\u00f3xico, e seus olhos come\u00e7am a lacrimejar. Voc\u00ea tosses e prende a respira\u00e7\u00e3o, correndo em volta da caverna para tentar escapar da nuvem de g\u00e1s que envolve seu rosto. Seus pulm\u00f5es parecem estar explodindo, e voc\u00ea \u00e9 for\u00e7ado a inspirar. Se ainda estiver vivo, voc\u00ea viado ao ver a nuvem de g\u00e1s ir se dissipando. Voc\u00ea colocar a caixa de prata na sua mochila e sai da caverna imediatamente para continuar na dire\u00e7\u00e3o do norte em sua miss\u00e3o.",
+      "treasure": [
+        "Caixa de Prata"
+      ],
+      "traps": [
+        {
+          "type": "Nuvem de g\u00e1s t\u00f3xico",
+          "dc": 30,
+          "damage": "1d6",
+          "save_type": "fortitude"
+        }
+      ],
+      "choices": [
+        {
+          "text": "Continue.",
+          "target": "358"
+        }
+      ]
+    },
+    {
+      "node_id": "23",
+      "title": "23",
+      "description": "Voc\u00ea enxuga o suor da sua testa e fica imaginando o que mais essas terras cru\u00e9is ter\u00e3o reservado para voc\u00ea. Voc\u00ea senta e descansa um puco. Depois, parte na dire\u00e7\u00e3o do som de \u00e1gua corrente.\nENDD",
+      "choices": [
+        {
+          "text": "Continue",
+          "target": "339"
+        }
+      ]
+    },
+    {
+      "node_id": "24",
+      "title": "24",
+      "description": "Os m\u00fasculos de seu pesco\u00e7o come\u00e7am a endurecer, e voc\u00ea sente os efeitos do veneno dos dardos percorrendo seu corpo. Voc\u00ea procura rapidamente na sua mochila e retira a pequena garrafa com o r\u00f3tulo Po\u00e7\u00e3o Antiveneno, depois engole o conte\u00fado. Seu corpo relaxa, e os efeitos do veneno v\u00e3o sumindo. Ao ver isso, os Pigmeuss voltam-se e fogem para o mato. Voc\u00ea:",
+      "choices": [
+        {
+          "text": "Desembainhar\u00e1 sua espada e correr\u00e1 para o mato na persegui\u00e7\u00e3o dos Pigmeus?",
+          "target": "377"
+        },
+        {
+          "text": "Continuar\u00e1 para o norte pela trilha?",
+          "target": "92"
+        }
+      ],
+      "item_cost": {
+        "Po\u00e7\u00e3o Antiveneno": 1
+      }
+    },
+    {
+      "node_id": "25",
+      "title": "25",
+      "description": "A trilha acaba por se tornar plana, e voc\u00ea se v\u00ea no fundo de um vale. A trilha tamb\u00e9m continua para o norte, mas h\u00e1 um novo caminho que leva na dire\u00e7\u00e3o do oeste.",
+      "choices": [
+        {
+          "text": "Continue para o norte",
+          "target": "369"
+        },
+        {
+          "text": "Continue para o oeste",
+          "target": "56"
+        }
+      ]
     }
   ],
   "custom_monsters": {
